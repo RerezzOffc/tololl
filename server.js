@@ -1,25 +1,51 @@
 const express = require('express');
-const axios = require('axios');
+const bodyParser = require('body-parser');
+const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Halaman utama untuk pendaftaran
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Home Route (Serving HTML page)
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// Endpoint untuk mendaftar pengguna
+app.post('/register', (req, res) => {
+    const { username, nomor, password } = req.body;
+
+    if (!username || !nomor || !password) {
+        return res.status(400).json({ error: 'Semua field harus diisi!' });
+    }
+
+    const newUser = {
+        username,
+        nomor,
+        password,
+        saldo: 0
+    };
+
+    fs.readFile('database.json', 'utf8', (err, data) => {
+        if (err) {
+            return res.status(500).json({ error: 'Gagal membaca database' });
+        }
+
+        let users = JSON.parse(data);
+        users.push(newUser);
+
+        fs.writeFile('database.json', JSON.stringify(users, null, 2), (err) => {
+            if (err) {
+                return res.status(500).json({ error: 'Gagal menyimpan data pengguna' });
+            }
+
+            res.status(201).json({ message: 'Akun berhasil dibuat!' });
+        });
+    });
 });
 
-// API Routes
-app.post('/api/service', require('./api/services'));
-app.post('/api/order', require('./api/order'));
-app.post('/api/refill', require('./api/refill'));
-app.post('/api/refillStatus', require('./api/refillStatus'));
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+// Menjalankan server
+app.listen(PORT, () => {
+    console.log(`Server berjalan di http://localhost:${PORT}`);
 });
