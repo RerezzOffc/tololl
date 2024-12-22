@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran Akun</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Daftar Akun</h2>
+    <form id="register-form">
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="text" id="nomor" placeholder="Nomor Telepon" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button type="submit">Daftar</button>
+    </form>
+</div>
+
+<script>
+    const registerForm = document.getElementById('register-form');
+
+    registerForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const nomor = document.getElementById('nomor').value;
+        const password = document.getElementById('password').value;
+
+        const response = await fetch('/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, nomor, password })
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert(result.message);
+            registerForm.reset();
+        } else {
+            alert(result.error);
+        }
+    });
+</script>
+
+</body>
+</html>
